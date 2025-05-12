@@ -1,0 +1,28 @@
+# amplify.yml  ── commit at repo root
+version: 1
+frontend:
+  phases:
+    # ---------- Pre-build steps (lint, test, env, etc.) ----------
+    preBuild:
+      commands:
+        # Dependency install (pick one)
+        - npm ci                     # or: yarn install / pnpm install
+        # ↓ User-specific extras (add or remove as needed)
+        - <pre_build_commands>       # e.g. "npm run lint && npm test"
+    # ---------- Main build step ----------------------------------
+    build:
+      commands:
+        - <build_command>            # e.g. "npm run build" / "vite build"
+  # ---------- Artifacts to deploy (S3 → CloudFront) --------------
+  artifacts:
+    baseDirectory: <output_directory>  # e.g. dist, build, public
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+  # ---------- SPA fallback: any 404 → /index.html ----------------
+  customRules:
+    - source: '/<*>'
+      target: '/index.html'
+      status: '200'
