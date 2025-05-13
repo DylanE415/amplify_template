@@ -14,3 +14,23 @@ resource "aws_amplify_branch" "prod" {
   enable_auto_build = true
 
 }
+
+# need to kick off start job 
+resource "null_resource" "trigger_build" {
+
+  depends_on = [aws_amplify_branch.prod]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      set -e                                     
+      echo "▶ Starting initial Amplify build…"
+      aws amplify start-job \
+        --app-id      ${aws_amplify_app.app.id} \
+        --branch-name ${aws_amplify_branch.prod.branch_name} \
+        --job-type    RELEASE \
+        --region      ${var.aws_region}
+    EOT
+
+  }
+}
+
